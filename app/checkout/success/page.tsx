@@ -1,85 +1,64 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/components/cart-provider";
 
 type PaymentStatus = "checking" | "success" | "failed";
 
-export default function CheckoutSuccessPage() {
+function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const { clearCart } = useCart();
 
-  const [status, setStatus] =
-    useState<PaymentStatus>("checking");
-
+  const [status, setStatus] = useState<PaymentStatus>("checking");
   const [reference, setReference] = useState("");
 
   useEffect(() => {
-  const transactionReference =
-    searchParams.get("reference");
+    const transactionReference = searchParams.get("reference");
 
-  if (!transactionReference) {
-    setStatus("failed");
-    return;
-  }
+    if (!transactionReference) {
+      setStatus("failed");
+      return;
+    }
 
-  setReference(transactionReference);
+    setReference(transactionReference);
 
-  async function verifyPayment(reference: string) {
-    try {
-      const response = await fetch(
-        `/api/paystack/verify?reference=${encodeURIComponent(
-          reference
-        )}`
-      );
-
-      const data = await response.json();
-
-      if (
-        response.ok &&
-        data.status === "success"
-      ) {
-        setStatus("success");
-        clearCart();
-      } else {
-        console.error(
-          "Payment verification failed:",
-          data
+    async function verifyPayment(reference: string) {
+      try {
+        const response = await fetch(
+          `/api/paystack/verify?reference=${encodeURIComponent(reference)}`
         );
 
+        const data = await response.json();
+
+        if (response.ok && data.status === "success") {
+          setStatus("success");
+          clearCart();
+        } else {
+          console.error("Payment verification failed:", data);
+          setStatus("failed");
+        }
+      } catch (error) {
+        console.error("Payment verification error:", error);
         setStatus("failed");
       }
-    } catch (error) {
-      console.error(
-        "Payment verification error:",
-        error
-      );
-
-      setStatus("failed");
     }
-  }
 
-  verifyPayment(transactionReference);
-}, [searchParams, clearCart]);
+    verifyPayment(transactionReference);
+  }, [searchParams, clearCart]);
+
   if (status === "checking") {
     return (
       <main className="container min-h-[65vh] py-24">
         <div className="mx-auto max-w-xl text-center">
-          <span className="eyebrow">
-            LUXORA / Payment
-          </span>
-
+          <span className="eyebrow">LUXORA / Payment</span>
           <h1 className="display-serif mt-4 text-5xl">
             Confirming your payment...
           </h1>
-
           <p className="mt-5 text-sm leading-7 text-muted">
-            Please wait while we confirm your
-            transaction with Paystack.
+            Please wait while we confirm your transaction with Paystack.
           </p>
-
           <div className="mx-auto mt-8 h-8 w-8 animate-spin rounded-full border-2 border-line border-t-ink" />
         </div>
       </main>
@@ -90,18 +69,13 @@ export default function CheckoutSuccessPage() {
     return (
       <main className="container min-h-[65vh] py-24">
         <div className="mx-auto max-w-xl text-center">
-          <span className="eyebrow">
-            LUXORA / Payment
-          </span>
-
+          <span className="eyebrow">LUXORA / Payment</span>
           <h1 className="display-serif mt-4 text-5xl">
             Payment could not be confirmed.
           </h1>
-
           <p className="mt-5 text-sm leading-7 text-muted">
-            We couldn't confirm your payment.
-            Please check your transaction or try
-            again.
+            We couldn't confirm your payment. Please check your transaction or
+            try again.
           </p>
 
           {reference && (
@@ -111,13 +85,9 @@ export default function CheckoutSuccessPage() {
           )}
 
           <div className="mt-8 flex justify-center gap-3">
-            <Link
-              href="/checkout"
-              className="lux-button"
-            >
+            <Link href="/checkout" className="lux-button">
               Return to Checkout
             </Link>
-
             <Link
               href="/collections"
               className="border border-line px-6 py-3 text-[10px] uppercase tracking-[.1em]"
@@ -133,18 +103,13 @@ export default function CheckoutSuccessPage() {
   return (
     <main className="container min-h-[65vh] py-24">
       <div className="mx-auto max-w-xl text-center">
-        <span className="eyebrow">
-          LUXORA / Order Confirmed
-        </span>
-
+        <span className="eyebrow">LUXORA / Order Confirmed</span>
         <h1 className="display-serif mt-4 text-5xl">
           Thank you for your order.
         </h1>
-
         <p className="mt-5 text-sm leading-7 text-muted">
-          Your payment has been successfully
-          confirmed. Your LUXORA order is now being
-          processed.
+          Your payment has been successfully confirmed. Your LUXORA order is
+          now being processed.
         </p>
 
         {reference && (
@@ -152,21 +117,14 @@ export default function CheckoutSuccessPage() {
             <p className="text-[9px] uppercase tracking-[.1em] text-muted">
               Payment reference
             </p>
-
-            <p className="mt-2 text-xs">
-              {reference}
-            </p>
+            <p className="mt-2 text-xs">{reference}</p>
           </div>
         )}
 
         <div className="mt-8 flex justify-center gap-3">
-          <Link
-            href="/collections"
-            className="lux-button"
-          >
+          <Link href="/collections" className="lux-button">
             Continue Shopping
           </Link>
-
           <Link
             href="/"
             className="border border-line px-6 py-3 text-[10px] uppercase tracking-[.1em]"
@@ -176,5 +134,23 @@ export default function CheckoutSuccessPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="container min-h-[65vh] py-24">
+          <div className="mx-auto max-w-xl text-center">
+            <span className="eyebrow">LUXORA / Payment</span>
+            <h1 className="display-serif mt-4 text-5xl">Loading...</h1>
+            <div className="mx-auto mt-8 h-8 w-8 animate-spin rounded-full border-2 border-line border-t-ink" />
+          </div>
+        </main>
+      }
+    >
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 }

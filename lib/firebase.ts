@@ -16,9 +16,9 @@
 // export const db = getFirestore(app);
 
 
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
+import { getAuth, Auth } from 'firebase/auth';
+import { getFirestore, Firestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -29,14 +29,14 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Safe App Initialization: Only initialize if an API key exists
-const app =
-  getApps().length > 0
-    ? getApp()
-    : firebaseConfig.apiKey
-    ? initializeApp(firebaseConfig)
-    : null;
+// Return app instance or dummy fallback object during build phase
+const app: FirebaseApp = getApps().length
+  ? getApp()
+  : initializeApp(
+      firebaseConfig.apiKey
+        ? firebaseConfig
+        : { apiKey: 'build-phase-placeholder', projectId: 'placeholder' }
+    );
 
-// Helper to safely retrieve services without throwing build-time errors
-export const auth = app ? getAuth(app) : null;
-export const db = app ? getFirestore(app) : null;
+export const auth: Auth = getAuth(app);
+export const db: Firestore = getFirestore(app);

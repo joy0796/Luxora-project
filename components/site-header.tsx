@@ -23,14 +23,14 @@ export function SiteHeader() {
     ["SHOP", "/collections"],
     ["COLLECTIONS", "/collections"],
     ["BEST SELLERS", "/#bestsellers"],
-    ["ABOUT US", "/about"],
+    ["ABOUT USSSSSSS", "/about"],
   ];
 
   return (
     <>
       {/* Announcement Bar */}
       <div className="flex h-[34px] items-center justify-center bg-[#171717] px-4 text-[10px] text-white">
-        FREE SHIPPING ON ALL ORDERS OVER $100000      </div>
+        FREE SHIPPING ON ALL ORDERS OVER $100</div>
 
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-black/10 bg-paper/95 backdrop-blur-md">

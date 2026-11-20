@@ -23,10 +23,9 @@ export function SiteHeader() {
     ["SHOP", "/collections"],
     ["COLLECTIONS", "/collections"],
     ["BEST SELLERS", "/#bestsellers"],
-    ["ABOUT USSSSSSS", "/about"],
+    ["ABOUT US", "/about"],
   ];
-
-  return (
+return (
     <>
       {/* Announcement Bar */}
       <div className="flex h-[34px] items-center justify-center bg-[#171717] px-4 text-[10px] text-white">
